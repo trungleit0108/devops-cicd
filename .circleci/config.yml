@@ -132,7 +132,7 @@ jobs:
             cd frontend
             npm install
             npm run test
-      - notify_on_failure
+      # - notify_on_failure
 
   test-backend:
     docker:
@@ -147,7 +147,7 @@ jobs:
             cd backend
             npm install
             npm run test
-      - notify_on_failure
+      # - notify_on_failure
 
   scan-frontend:
     docker:
@@ -165,7 +165,7 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
-      - notify_on_failure
+      # - notify_on_failure
 
   scan-backend:
     docker:
@@ -183,7 +183,7 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-      - notify_on_failure
+      # - notify_on_failure
 
   deploy-infrastructure:
     docker:
@@ -225,7 +225,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
-      - notify_on_failure
+      # - notify_on_failure
 
   configure-infrastructure:
     docker:
@@ -269,7 +269,7 @@ jobs:
             curl -k https://kvdb.io/PDKek3NAeNahXErCyiqLX4/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
-      - notify_on_failure
+      # - notify_on_failure
 
   deploy-frontend:
     docker:
@@ -312,7 +312,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
       # - revert-migrations
-      - notify_on_failure
+      # - notify_on_failure
 
   deploy-backend:
     docker:
