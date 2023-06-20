@@ -458,7 +458,7 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - notify:
+      - notify_on_failure:
           context: slack-secrets
           requires: [build-frontend, build-backend]
       - test-frontend:
