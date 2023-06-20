@@ -12,6 +12,7 @@ commands:
           template: basic_fail_1
       - slack/notify:
           event: pass
+          channel: C045G1823C0
           template: success_tagged_deploy_1
 
   install_awscli:
@@ -164,6 +165,7 @@ jobs:
             # npm audit fix --force
             npm audit --audit-level=critical
       - notify_on_failure
+
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -450,14 +452,15 @@ jobs:
             fi
 
 workflows:
-  send-notification:
-    jobs:
-      - notify:
-          context: slack-secrets
+  # send-notification:
+  #   jobs:
   default:
     jobs:
       - build-frontend
       - build-backend
+      - notify:
+          context: slack-secrets
+          requires: [build-frontend, build-backend]
       - test-frontend:
           requires: [build-frontend]
       - test-backend:
