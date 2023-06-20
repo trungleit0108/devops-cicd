@@ -4,19 +4,6 @@ orbs:
   slack: circleci/slack@4.12.5
 
 commands:
-  # send-notification:
-  #   # docker:
-  #   #   - image: "cimg/base:stable"
-  #   steps:
-  #     - slack/notify:
-  #         event: fail
-  #         channel: C045G1823C0
-  #         template: basic_fail_1
-  #     # - slack/notify:
-  #     #     event: pass
-  #     #     channel: C045G1823C0
-  #     #     template: success_tagged_deploy_1
-
   install_awscli:
     description: Install AWS CLI v2
     steps:
@@ -133,8 +120,8 @@ jobs:
             cd frontend
             npm install
             npm run test
-      # - send-notification
       - slack/notify:
+          branch_pattern: .+
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
@@ -152,8 +139,8 @@ jobs:
             cd backend
             npm install
             npm run test
-      # - send-notification
       - slack/notify:
+          branch_pattern: .+
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
@@ -174,8 +161,8 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
-      # - send-notification
       - slack/notify:
+          branch_pattern: .+
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
@@ -196,8 +183,8 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-      # - send-notification
       - slack/notify:
+          branch_pattern: .+
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
@@ -242,8 +229,8 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
-      # - send-notification
       - slack/notify:
+          branch_pattern: .+
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
@@ -290,8 +277,8 @@ jobs:
             curl -k https://kvdb.io/PDKek3NAeNahXErCyiqLX4/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
-      # - send-notification
       - slack/notify:
+          branch_pattern: .+
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
@@ -337,8 +324,8 @@ jobs:
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
       # - revert-migrations
-      # - send-notification
       - slack/notify:
+          branch_pattern: .+
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
