@@ -4,6 +4,19 @@ orbs:
   slack: circleci/slack@4.12.5
 
 commands:
+  send-notification:
+    docker:
+      - image: "cimg/base:stable"
+    steps:
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          channel: C045G1823C0
+          template: success_tagged_deploy_1
+
   install_awscli:
     description: Install AWS CLI v2
     steps:
@@ -73,18 +86,6 @@ commands:
             fi
 
 jobs:
-  notify_on_failure:
-    docker:
-      - image: "cimg/base:stable"
-    steps:
-      - slack/notify:
-          event: fail
-          channel: C045G1823C0
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: C045G1823C0
-          template: success_tagged_deploy_1
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -120,6 +121,7 @@ jobs:
           key: backend-build
 
   test-frontend:
+    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -132,9 +134,10 @@ jobs:
             cd frontend
             npm install
             npm run test
-      # - notify_on_failure
+      - send-notification
 
   test-backend:
+    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -147,9 +150,10 @@ jobs:
             cd backend
             npm install
             npm run test
-      # - notify_on_failure
+      - send-notification
 
   scan-frontend:
+    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -165,9 +169,10 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
-      # - notify_on_failure
+      - send-notification
 
   scan-backend:
+    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -183,9 +188,10 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-      # - notify_on_failure
+      - send-notification
 
   deploy-infrastructure:
+    context: slack-secrets
     docker:
       - image: amazon/aws-cli
     steps:
@@ -225,7 +231,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
-      # - notify_on_failure
+      - send-notification
 
   configure-infrastructure:
     docker:
@@ -250,6 +256,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
 
   run-migrations:
+    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -269,9 +276,10 @@ jobs:
             curl -k https://kvdb.io/PDKek3NAeNahXErCyiqLX4/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
-      # - notify_on_failure
+      - send-notification
 
   deploy-frontend:
+    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -312,7 +320,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
       # - revert-migrations
-      # - notify_on_failure
+      - send-notification
 
   deploy-backend:
     docker:
@@ -453,8 +461,6 @@ jobs:
             fi
 
 workflows:
-  # send-notification:
-  #   jobs:
   default:
     jobs:
       - build-frontend
@@ -467,9 +473,9 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - notify_on_failure:
-          context: slack-secrets
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      # - send-notification:
+      #     context: slack-secrets
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
