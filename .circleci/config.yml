@@ -4,17 +4,6 @@ orbs:
   slack: circleci/slack@4.12.5
 
 commands:
-  notify_on_failure:
-    steps:
-      - slack/notify:
-          event: fail
-          channel: C045G1823C0
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: C045G1823C0
-          template: success_tagged_deploy_1
-
   install_awscli:
     description: Install AWS CLI v2
     steps:
@@ -84,6 +73,18 @@ commands:
             fi
 
 jobs:
+  notify_on_failure:
+    docker:
+      - image: "cimg/base:stable"
+    steps:
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          channel: C045G1823C0
+          template: success_tagged_deploy_1
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
