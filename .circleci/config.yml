@@ -4,18 +4,18 @@ orbs:
   slack: circleci/slack@4.12.5
 
 commands:
-  send-notification:
-    # docker:
-    #   - image: "cimg/base:stable"
-    steps:
-      - slack/notify:
-          event: fail
-          channel: C045G1823C0
-          template: basic_fail_1
-      # - slack/notify:
-      #     event: pass
-      #     channel: C045G1823C0
-      #     template: success_tagged_deploy_1
+  # send-notification:
+  #   # docker:
+  #   #   - image: "cimg/base:stable"
+  #   steps:
+  #     - slack/notify:
+  #         event: fail
+  #         channel: C045G1823C0
+  #         template: basic_fail_1
+  #     # - slack/notify:
+  #     #     event: pass
+  #     #     channel: C045G1823C0
+  #     #     template: success_tagged_deploy_1
 
   install_awscli:
     description: Install AWS CLI v2
@@ -121,7 +121,6 @@ jobs:
           key: backend-build
 
   test-frontend:
-    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -134,10 +133,13 @@ jobs:
             cd frontend
             npm install
             npm run test
-      - send-notification
+      # - send-notification
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
 
   test-backend:
-    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -150,10 +152,13 @@ jobs:
             cd backend
             npm install
             npm run test
-      - send-notification
+      # - send-notification
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
 
   scan-frontend:
-    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -169,10 +174,13 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
-      - send-notification
+      # - send-notification
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
 
   scan-backend:
-    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -188,10 +196,13 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-      - send-notification
+      # - send-notification
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
 
   deploy-infrastructure:
-    context: slack-secrets
     docker:
       - image: amazon/aws-cli
     steps:
@@ -231,7 +242,11 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
-      - send-notification
+      # - send-notification
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
 
   configure-infrastructure:
     docker:
@@ -256,7 +271,6 @@ jobs:
       # Here's where you will add some code to rollback on failure
 
   run-migrations:
-    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -276,10 +290,13 @@ jobs:
             curl -k https://kvdb.io/PDKek3NAeNahXErCyiqLX4/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
-      - send-notification
+      # - send-notification
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
 
   deploy-frontend:
-    context: slack-secrets
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -320,7 +337,11 @@ jobs:
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
       # - revert-migrations
-      - send-notification
+      # - send-notification
+      - slack/notify:
+          event: fail
+          channel: C045G1823C0
+          template: basic_fail_1
 
   deploy-backend:
     docker:
@@ -466,32 +487,41 @@ workflows:
       - build-frontend
       - build-backend
       - test-frontend:
+          context: slack-secrets
           requires: [build-frontend]
       - test-backend:
+          context: slack-secrets
           requires: [build-backend]
       - scan-backend:
+          context: slack-secrets
           requires: [build-backend]
       - scan-frontend:
+          context: slack-secrets
           requires: [build-frontend]
-      # - send-notification:
-      #     context: slack-secrets
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - deploy-infrastructure:
+          context: slack-secrets
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [test-feature-branch]
       - configure-infrastructure:
+          context: slack-secrets
           requires: [deploy-infrastructure]
       - run-migrations:
+          context: slack-secrets
           requires: [configure-infrastructure]
       - deploy-frontend:
+          context: slack-secrets
           requires: [run-migrations]
       - deploy-backend:
+          context: slack-secrets
           requires: [run-migrations]
       - smoke-test:
+          context: slack-secrets
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
+          context: slack-secrets
           requires: [smoke-test]
       - cleanup:
+          context: slack-secrets
           requires: [cloudfront-update]
