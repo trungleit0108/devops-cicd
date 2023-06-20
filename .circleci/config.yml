@@ -5,8 +5,8 @@ orbs:
 
 commands:
   send-notification:
-    docker:
-      - image: "cimg/base:stable"
+    # docker:
+    #   - image: "cimg/base:stable"
     steps:
       - slack/notify:
           event: fail
