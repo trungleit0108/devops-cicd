@@ -12,10 +12,10 @@ commands:
           event: fail
           channel: C045G1823C0
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: C045G1823C0
-          template: success_tagged_deploy_1
+      # - slack/notify:
+      #     event: pass
+      #     channel: C045G1823C0
+      #     template: success_tagged_deploy_1
 
   install_awscli:
     description: Install AWS CLI v2
