@@ -1,12 +1,18 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.12.5
+
 commands:
   notify_on_failure:
     steps:
       - slack/notify:
           event: fail
-          channel: deploy
+          channel: C045G1823C0
           template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
 
   install_awscli:
     description: Install AWS CLI v2
@@ -124,7 +130,7 @@ jobs:
             cd frontend
             npm install
             npm run test
-      # - notify_on_failure
+      - notify_on_failure
 
   test-backend:
     docker:
@@ -139,7 +145,7 @@ jobs:
             cd backend
             npm install
             npm run test
-      # - notify_on_failure
+      - notify_on_failure
 
   scan-frontend:
     docker:
@@ -154,10 +160,10 @@ jobs:
             cd frontend
             npm install
             # npm install oauth-sign@^0.9.0
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
+            # npm audit fix --audit-level=critical --force
+            # npm audit fix --force
             npm audit --audit-level=critical
-      # - notify_on_failure
+      - notify_on_failure
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -174,7 +180,7 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-      # - notify_on_failure
+      - notify_on_failure
 
   deploy-infrastructure:
     docker:
@@ -216,7 +222,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
-      # - notify_on_failure
+      - notify_on_failure
 
   configure-infrastructure:
     docker:
@@ -260,7 +266,7 @@ jobs:
             curl -k https://kvdb.io/PDKek3NAeNahXErCyiqLX4/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
-      # - notify_on_failure
+      - notify_on_failure
 
   deploy-frontend:
     docker:
@@ -303,7 +309,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
       # - destroy-environment
       # - revert-migrations
-      # - notify_on_failure
+      - notify_on_failure
 
   deploy-backend:
     docker:
@@ -444,6 +450,10 @@ jobs:
             fi
 
 workflows:
+  send-notification:
+    jobs:
+      - notify:
+          context: slack-secrets
   default:
     jobs:
       - build-frontend
