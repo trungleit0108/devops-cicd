@@ -195,11 +195,13 @@ jobs:
 
   deploy-backend:
     docker:
-      # Docker image here that supports Ansible
+      - image: python:3.11-rc-alpine
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["c5:c6:6a:12:dc:4a:7b:a6:10:c8:f6:7a:0e:20:f1:6a"]
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
