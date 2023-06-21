@@ -14,16 +14,16 @@ commands:
             unzip awscliv2.zip
             sudo ./aws/install
 
-  install_ansible:
-    description: Install Ansible & dependencies
-    steps:
-      - run:
-          name: Install ansible dependencies
-          command: |
-            apk add curl
-            apk add --upgrade bash
-            apk add --update ansible
-            pip install awscli --upgrade
+  # install_ansible:
+  #   description: Install Ansible & dependencies
+  #   steps:
+  #     - run:
+  #         name: Install ansible dependencies
+  #         command: |
+  #           apk add curl
+  #           apk add --upgrade bash
+  #           apk add --update ansible
+  #           pip install awscli --upgrade
 
   install_nodejs:
     description: Install Node.js 13
@@ -241,21 +241,26 @@ jobs:
       - image: python:3.11-rc-alpine
     steps:
       - checkout
-      - install_ansible
+      # - install_ansible
       - add_ssh_keys:
-          fingerprints: ["c5:c6:6a:12:dc:4a:7b:a6:10:c8:f6:7a:0e:20:f1:6a"]
+          fingerprints: ["a7:1d:79:3b:15:93:61:75:00:c9:17:ce:96:ae:9f:ef"]
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install Ansible & dependencies
           command: |
-            # Your code here
-            exit 1
+            apk add curl
+            apk add --upgrade bash
+            apk add --update ansible
+            ansible --version
+            pip install awscli --upgrade
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
+            pwd
+            cat ./.circleci/ansible/inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=false
+            ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
       # Here's where you will add some code to rollback on failure
 
   run-migrations:
@@ -337,7 +342,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["c5:c6:6a:12:dc:4a:7b:a6:10:c8:f6:7a:0e:20:f1:6a"]
+          fingerprints: ["a7:1d:79:3b:15:93:61:75:00:c9:17:ce:96:ae:9f:ef"]
       - attach_workspace:
           at: ~/
       - run:
