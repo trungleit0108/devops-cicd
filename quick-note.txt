@@ -1,0 +1,14 @@
+# Assuming the endpoint is: mypostgres-database-1.c5szli4s4qq9.us-east-1.rds.amazonaws.com
+psql -h mypostgres-database-1.c5szli4s4qq9.us-east-1.rds.amazonaws.com -U [your-username] postgres
+psql -h udapeople-dev.cewivfnhhhrx.us-east-1.rds.amazonaws.com -U trungpo postgres
+# It will open the "postgres=>" prompt if the connection is successful.
+# Provide the database password when prompted.
+
+# List the databases
+\list
+# Go inside the "postgres" database and view relations
+\c postgres
+\dtsudo -i -u postgres
+
+kvdb: RDB86GRa7tNmroiswjbWKj
+connect instance by ssh: https://learn.udacity.com/nanodegrees/nd9991/parts/cd0649/lessons/8055dc75-2edb-44e6-8f74-76fb86d17a9b/concepts/379682d3-2621-4f1e-be3a-c3c7023b684f
