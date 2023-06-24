@@ -241,36 +241,20 @@ jobs:
   #     - image: python:3.11-rc-alpine
   #   steps:
   #     - checkout
-  #     # - install_ansible
   #     - add_ssh_keys:
   #         fingerprints: ["1e:f4:d9:7f:ff:6a:70:80:8e:de:cf:c6:4c:d0:4b:90"]
-  #     # - attach_workspace:
-  #     #     at: ~/
+  #     - attach_workspace:
+  #         at: ~/
   #     - run:
   #         name: Install Ansible & dependencies
   #         command: |
   #           apk add curl
   #           apk add --upgrade bash
   #           apk add --update ansible
-            # apk add --update --no-cache python3 py3-pip
-            # /usr/local/bin/python -m pip install --upgrade pip
+  #           apk add --update --no-cache python3 py3-pip
+  #           /usr/local/bin/python -m pip install --upgrade pip
   #           ansible --version
   #           pip install awscli --upgrade
-  #     - run:
-  #         name: Create dotenv file
-  #         command: |
-  #           cd backend/
-  #           echo > ".env"
-  #           echo ENVIRONMENT="production" >> ".env"
-  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
-  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
-  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ".env"
-  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ".env"
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
   #     - run:
   #         name: Configure server
   #         command: |
@@ -285,21 +269,18 @@ jobs:
 
   configure-infrastructure:
     docker:
-      # Select proper image
-      - image: amazon/aws-cli:latest
+      - image: amazon/aws-cli
     steps:
       - checkout
-      # Add the necessary SSH key fingerprint
       - add_ssh_keys:
           fingerprints: ["1e:f4:d9:7f:ff:6a:70:80:8e:de:cf:c6:4c:d0:4b:90"]
       - run:
           name: Install dependencies
           command: |
-            yum update
+            yum update -y
             yum install -y tar gzip unzip
             yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
             yum -y install ansible
-      #Attach the workspace
       - attach_workspace:
           at: ~/
       #We get the IP from the inv file and run ansible
@@ -307,8 +288,10 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
+            cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      # - destroy-environment
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID}
 
   run-migrations:
     docker:
