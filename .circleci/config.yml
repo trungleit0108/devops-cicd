@@ -62,7 +62,7 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             # SUCCESS = 1
-            SUCCESS=$(curl --insecure  https://kvdb.io/6psohL9DUqYdahgvzD1QPG/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/ULDGZVttnektv7dr2qMfJQ/migration_<< parameters.Workflow_ID >>)
             echo $SUCCESS  
             if(( $SUCCESS==1 )); 
             then
@@ -287,11 +287,8 @@ jobs:
       #       - project/backend
       - run:
           name: send migration status to kvdb.io
-          # command: |
-          #   echo "DB migration was successful, the kvdb will be updated"
-          #   curl -k https://kvdb.io/WeuS9Q3YLi72mWdPxsgNmY/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
           command: |
-            curl --insecure https://kvdb.io/WeuS9Q3YLi72mWdPxsgNmY/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
+            curl --insecure https://kvdb.io/ULDGZVttnektv7dr2qMfJQ/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
       - slack/notify:
@@ -508,7 +505,7 @@ jobs:
       - run:
           name: Get old stack workflow id and Remove old stacks and files
           command: |
-            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/WeuS9Q3YLi72mWdPxsgNmY/OldWorkflowID)
+            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/ULDGZVttnektv7dr2qMfJQ/OldWorkflowID)
             echo "OLD_WORKFLOW_ID=$OLD_WORKFLOW_ID"
             NEW_WORKFLOW_ID=${CIRCLE_WORKFLOW_ID:0:7}
             echo "NEW_WORKFLOW_ID=$NEW_WORKFLOW_ID"
