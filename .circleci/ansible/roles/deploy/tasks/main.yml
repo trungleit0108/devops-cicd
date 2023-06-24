@@ -19,6 +19,14 @@
     sudo apt-get install -y npm
     cd /home/ubuntu/app
 
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
 - name: Stop and delete already running server
   ignore_errors: yes
   shell: |
