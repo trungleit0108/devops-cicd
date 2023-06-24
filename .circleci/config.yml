@@ -25,14 +25,14 @@ commands:
   #           apk add --update ansible
   #           pip install awscli --upgrade
 
-  install_nodejs:
-    description: Install Node.js 13
-    steps:
-      - run:
-          name: Install Node.js 13
-          command: |
-            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            sudo apt install -y nodejs
+  # install_nodejs:
+  #   description: Install Node.js 13
+  #   steps:
+  #     - run:
+  #         name: Install Node.js 13
+  #         command: |
+  #           curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+  #           sudo apt install -y nodejs
 
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -243,7 +243,7 @@ jobs:
       - checkout
       # - install_ansible
       - add_ssh_keys:
-          fingerprints: ["a7:1d:79:3b:15:93:61:75:00:c9:17:ce:96:ae:9f:ef"]
+          fingerprints: ["71:69:67:5a:62:4f:66:0b:20:e9:2a:29:db:60:d3:e6"]
       - attach_workspace:
           at: ~/
       - run:
@@ -280,7 +280,8 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:13.8.0 #todo
+      # - image: circleci/node:14.18.1
     steps:
       - checkout
       - attach_workspace:
@@ -290,16 +291,22 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
             echo 'Migration is running!! Nothing can be done'
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/backend
+      # - persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - project/backend
       - run:
-          name: Send migration results to memstash or kvdb.io
+          name: send migration status to kvdb.io
+          # command: |
+          #   echo "DB migration was successful, the kvdb will be updated"
+          #   curl -k https://kvdb.io/WeuS9Q3YLi72mWdPxsgNmY/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
           command: |
-            echo "DB migration was successful, the kvdb will be updated"
-            curl -k https://kvdb.io/RDB86GRa7tNmroiswjbWKj/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 'success'
+            curl --insecure https://kvdb.io/WeuS9Q3YLi72mWdPxsgNmY/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
       - slack/notify:
@@ -362,7 +369,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["a7:1d:79:3b:15:93:61:75:00:c9:17:ce:96:ae:9f:ef"]
+          fingerprints: ["71:69:67:5a:62:4f:66:0b:20:e9:2a:29:db:60:d3:e6"]
       - attach_workspace:
           at: ~/
       - run:
@@ -491,7 +498,7 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
             --stack-name InitialStack \
-            --parameter-overrides WorkflowID=udapeople-f5d81c273b795230828e44841ed5aeeb \
+            --parameter-overrides WorkflowID=udapeople-5bc109280e5e43f1dff47cc509d93c25 \
             --tags project=udapeople
       # Here's where you will add some code to rollback on failure
 
@@ -516,7 +523,7 @@ jobs:
       - run:
           name: Get old stack workflow id and Remove old stacks and files
           command: |
-            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/RDB86GRa7tNmroiswjbWKj/OldWorkflowID)
+            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/WeuS9Q3YLi72mWdPxsgNmY/OldWorkflowID)
             echo "OLD_WORKFLOW_ID=$OLD_WORKFLOW_ID"
             NEW_WORKFLOW_ID=${CIRCLE_WORKFLOW_ID:0:7}
             echo "NEW_WORKFLOW_ID=$NEW_WORKFLOW_ID"
