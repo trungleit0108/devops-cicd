@@ -14,25 +14,25 @@ commands:
             unzip awscliv2.zip
             sudo ./aws/install
 
-  # install_ansible:
-  #   description: Install Ansible & dependencies
-  #   steps:
-  #     - run:
-  #         name: Install ansible dependencies
-  #         command: |
-  #           apk add curl
-  #           apk add --upgrade bash
-  #           apk add --update ansible
-  #           pip install awscli --upgrade
+  install_ansible:
+    description: Install Ansible & dependencies
+    steps:
+      - run:
+          name: Install ansible dependencies
+          command: |
+            apk add curl
+            apk add --upgrade bash
+            apk add --update ansible
+            pip install awscli --upgrade
 
-  # install_nodejs:
-  #   description: Install Node.js 13
-  #   steps:
-  #     - run:
-  #         name: Install Node.js 13
-  #         command: |
-  #           curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-  #           sudo apt install -y nodejs
+  install_nodejs:
+    description: Install Node.js 13
+    steps:
+      - run:
+          name: Install Node.js 13
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs
 
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -350,10 +350,15 @@ jobs:
       - image: python:3.11-rc-alpine
     steps:
       - checkout
+      - install_awscli
+      - install_ansible
+      - install_nodejs
       - add_ssh_keys:
           fingerprints: ["f8:a2:01:45:f5:6e:e5:fd:48:69:cc:22:60:83:2f:4f"]
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
@@ -460,7 +465,7 @@ jobs:
             pwd
             ls -la
             echo "Backend smoke test."
-            
+
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
