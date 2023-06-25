@@ -428,6 +428,11 @@ jobs:
             ansible --version
             apk add --update tar
             pip3 install awscli
+
+            echo "STARTING Install dependencies"
+            pwd
+            ls -la
+            echo "ENDING Install dependencies"
       - run:
           name: Create env file
           command: |
@@ -444,9 +449,18 @@ jobs:
             echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
             echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
             cat .env
+            echo "STARTING Create env file"
+            pwd
+            ls -la
+            echo "ENDING Create env file"
       - run:
           name: Backend smoke test.
           command: |
+            echo "Backend smoke test."
+            pwd
+            ls -la
+            echo "Backend smoke test."
+            
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
