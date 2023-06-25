@@ -1,52 +1,34 @@
 ---
-- name: Create app dir
-  become: yes
-  file:
-    path: /home/ubuntu/app
-    state: directory
-
-- name: "Copy backend build folder to EC2"
-  become: yes
-  unarchive:
-    src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/app/
-    owner: ubuntu
-
-- name: "NPM Install"
-  become: yes
-  shell: |
-    sudo apt update
-    sudo apt-get install -y npm
-    cd /home/ubuntu/app
-
-- name: "install pm2"
+- name: "clean up server"
   become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
+  shell: "sudo rm -rf *"
 
-- name: Stop and delete already running server
-  ignore_errors: yes
-  shell: |
-    pm2 stop backend
-    pm2 delete backend
+- name: "git clone repo"
+  become: true
+  shell: "git clone https://github.com/trungleit0108/devops-cicd.git"
 
-- name: "Start backend"
-  become: yes
-  shell: |
-    cd /home/ubuntu/app
-    # npm run start
-    pm2 start npm -- start
+- name: "install dependency"
+  become: true
+  shell: "sudo npm install"
+  args:
+    chdir: "/home/ubuntu/devops-cicd/backend"
 
-  
-  environment:
-    - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
-    - TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
-    - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
-    - TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT')}}"
-    - TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
-    - TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
-    - TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
-    - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
+- name: "install peers dependency"
+  become: true
+  shell: "sudo npm install -g npm-install-peers"
+  args:
+    chdir: "/home/ubuntu/devops-cicd/backend"
+
+- name: "build backend server"
+  become: true
+  shell: "npm run build"
+  args:
+    chdir: "/home/ubuntu/devops-cicd/backend"
+
+- name: "run backend server"
+  become: true
+  shell: "pm2 start npm --name 'udapeople' -- start"
+  args:
+    chdir: "/home/ubuntu/devops-cicd/backend"
+  async: 45
+  poll: 0
