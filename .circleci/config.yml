@@ -67,7 +67,7 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             # SUCCESS = 1
-            SUCCESS=$(curl --insecure  https://kvdb.io/5fu9mtX3ukffyAPxgZiQy8/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/F8zFt9ZYS31Zx48iuiGncS/migration_<< parameters.Workflow_ID >>)
             echo $SUCCESS  
             if(( $SUCCESS==1 )); 
             then
@@ -293,7 +293,7 @@ jobs:
       - run:
           name: send migration status to kvdb.io
           command: |
-            curl --insecure https://kvdb.io/5fu9mtX3ukffyAPxgZiQy8/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
+            curl --insecure https://kvdb.io/F8zFt9ZYS31Zx48iuiGncS/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
       - slack/notify:
@@ -337,13 +337,10 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      # # Here's where you will add some code to rollback on failure
-      # # - destroy-environment
-      # # - revert-migrations
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       # - slack/notify:
       #     branch_pattern: .+
       #     event: fail
@@ -391,11 +388,10 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      # Here's where you will add some code to rollback on failure
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   smoke-test:
     docker:
@@ -435,10 +431,10 @@ jobs:
               exit 1
             fi
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
@@ -487,7 +483,7 @@ jobs:
       - run:
           name: Get old stack workflow id and Remove old stacks and files
           command: |
-            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/5fu9mtX3ukffyAPxgZiQy8/OldWorkflowID)
+            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/F8zFt9ZYS31Zx48iuiGncS/OldWorkflowID)
             echo "OLD_WORKFLOW_ID=$OLD_WORKFLOW_ID"
             NEW_WORKFLOW_ID=${CIRCLE_WORKFLOW_ID:0:7}
             echo "NEW_WORKFLOW_ID=$NEW_WORKFLOW_ID"
@@ -547,6 +543,6 @@ workflows:
       - cloudfront-update:
           context: slack-secrets
           requires: [smoke-test]
-      - cleanup:
-          context: slack-secrets
-          requires: [cloudfront-update]
+      # - cleanup:
+      #     context: slack-secrets
+      #     requires: [cloudfront-update]
