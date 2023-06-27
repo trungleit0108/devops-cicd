@@ -376,6 +376,7 @@ jobs:
 
             cd backend
             npm i
+            npm install oauth2
             npm run build
             cd ../
             tar -czf artifact.tar.gz backend
