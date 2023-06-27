@@ -6,7 +6,7 @@
 
 - name: "Copy backend Files to EC2 instance"
   copy:
-    src: /home/circleci/artifact.tar.gz
+    src: /root/project/artifact.tar.gz
     dest: /home/ubuntu
 
 - name: "Unarchive backend files"

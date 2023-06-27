@@ -390,7 +390,7 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
 
-            echo "for testingggggggggggggg"
+            echo "for testingggggggggggggg 2"
             ls -la
             sudo apt install tree
             tree
