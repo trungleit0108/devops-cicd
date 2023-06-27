@@ -1,13 +1,12 @@
 - name: "check package is exist or not"
   shell: |
-    sudo apt install tree
+    echo "for testingggggggggggggg 2"
     pwd
     ls -la
-    tree
 
 - name: "Copy backend Files to EC2 instance"
   copy:
-    src: /root/project/artifact.tar.gz
+    src: /home/circleci/artifact.tar.gz
     dest: /home/ubuntu
 
 - name: "Unarchive backend files"

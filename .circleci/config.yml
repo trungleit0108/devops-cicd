@@ -380,8 +380,6 @@ jobs:
 
             echo "for testingggggggggggggg"
             ls -la
-            sudo apt install tree
-            tree
       - run:
           name: Deploy backend
           command: |
