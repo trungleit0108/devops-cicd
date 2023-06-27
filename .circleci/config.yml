@@ -369,6 +369,10 @@ jobs:
       - run:
           name: Package Backend
           command: |
+            sudo apt install tree
+            echo "for testingggggggggggggg"
+            ls -la
+
             cd backend
             npm i
             npm run build
@@ -376,10 +380,9 @@ jobs:
             tar -czf artifact.tar.gz backend
             pwd
             ls 
-            cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks
+            cp artifact.tar.gz .circleci/ansible/roles/deploy/files
+            tree
 
-            echo "for testingggggggggggggg"
-            ls -la
       - run:
           name: Deploy backend
           command: |
@@ -387,13 +390,12 @@ jobs:
             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
             export TYPEORM_MIGRATIONS=./migrations/*.ts
 
+            echo "for testingggggggggggggg 2"
+            pwd
+            ls 
+            ls -la
             cd .circleci/ansible
             cat inventory.txt
-
-            echo "for testingggggggggggggg 2"
-            ls -la
-            sudo apt install tree
-            tree
 
             ansible-playbook -i inventory.txt deploy-backend.yml
 

@@ -1,12 +1,12 @@
 - name: "check package is exist or not"
   shell: |
-    echo "for testingggggggggggggg 2"
+    echo "for testingggggggggggggg 3"
     pwd
     ls -la
 
 - name: "Copy backend Files to EC2 instance"
   copy:
-    src: /root/project/artifact.tar.gz
+    src: /root/project/.circleci/artifact.tar.gz
     dest: /home/ubuntu
 
 - name: "Unarchive backend files"
