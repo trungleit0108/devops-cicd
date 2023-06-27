@@ -377,6 +377,11 @@ jobs:
             pwd
             ls 
             cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks
+
+            echo "for testingggggggggggggg"
+            ls -la
+            sudo apt install tree
+            tree
       - run:
           name: Deploy backend
           command: |
@@ -386,6 +391,12 @@ jobs:
 
             cd .circleci/ansible
             cat inventory.txt
+
+            echo "for testingggggggggggggg"
+            ls -la
+            sudo apt install tree
+            tree
+
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       # - destroy-environment:

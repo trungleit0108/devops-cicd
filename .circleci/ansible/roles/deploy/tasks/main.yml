@@ -1,3 +1,10 @@
+- name: "check package is exist or not"
+  shell: |
+    sudo apt install tree
+    pwd
+    ls -la
+    tree
+
 - name: "Copy backend Files to EC2 instance"
   copy:
     src: /root/project/artifact.tar.gz
