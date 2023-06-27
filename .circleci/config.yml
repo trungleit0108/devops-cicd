@@ -73,7 +73,7 @@ commands:
             then
               cd ~/project/backend
               pwd
-              ls -la
+              ls -a
               npm run migrations:revert
             fi
 
@@ -371,13 +371,15 @@ jobs:
           command: |
             sudo apt install tree
             echo "for testingggggggggggggg"
-            ls -la
+            pwd
+            ls -a
 
             cd backend
             npm i
             npm run build
             cd ../
             tar -czf artifact.tar.gz backend
+            # tar -C backend -czvf artifact.tar.gz .
             pwd
             ls 
             cp artifact.tar.gz .circleci/ansible/roles/deploy/files
@@ -393,7 +395,7 @@ jobs:
             echo "for testingggggggggggggg 2"
             pwd
             ls 
-            ls -la
+            ls -a
             cd .circleci/ansible
             cat inventory.txt
 
@@ -420,7 +422,7 @@ jobs:
               --output text)
 
             echo "STARTING MOCKTESTTTTTTTTTTTTT"
-            ls -la
+            ls -a
             echo "ENDING MOCKTESTTTTTTTTTTTTT"
 
             export API_URL=http://${BACKEND_IP}:3030
