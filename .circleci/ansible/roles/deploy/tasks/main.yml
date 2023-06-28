@@ -1,27 +1,54 @@
-- name: "check package is exist or not"
-  shell: |
-    echo "for testingggggggggggggg 3"
-    pwd
-    ls -la
+---
+- name: Create app dir
+  become: yes
+  file:
+    path: /home/ubuntu/app
+    state: directory
 
-- name: "Copy backend Files to EC2 instance"
-  copy:
-    src: /root/project/.circleci/ansible/roles/deploy/files/artifact.tar.gz
-    dest: /home/ubuntu
-
-- name: "Unarchive backend files"
+- name: "Copy backend build folder to EC2"
+  become: yes
   unarchive:
-    src: /home/ubuntu/artifact.tar.gz
-    dest: /home/ubuntu
-    copy: no
+    src: /root/project/artifact.tar.gz
+    dest: /home/ubuntu/app/
+    owner: ubuntu
 
-- name: "Installing Node Dependencies"
+- name: "NPM Install"
+  become: yes
   shell: |
-    cd /home/ubuntu/backend
-    npm install
-    npm run build
-- name: "Run the backend app"
+    sudo apt update
+    sudo apt-get install -y npm
+    cd /home/ubuntu/app
+    echo "for testingggggggggggggg"
+    pwd
+    ls -a
+
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: Stop and delete already running server
+  ignore_errors: yes
   shell: |
-    cd /home/ubuntu/backend
-    pm2 start npm --name backend -- start
-    pm2 ls
+    pm2 stop backend
+    pm2 delete backend
+
+- name: "Start backend"
+  become: yes
+  shell: |
+    cd /home/ubuntu/app
+    # npm run start
+    pm2 start npm -- start
+
+  environment:
+    - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
+    - TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
+    - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
+    - TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT')}}"
+    - TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
+    - TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
+    - TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
+    - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
