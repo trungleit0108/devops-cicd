@@ -349,10 +349,11 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      # - image: cimg/base:stable
+      - image: python:3.11-rc-alpine
     steps:
       - checkout
-      - install_awscli
+      # - install_awscli
       - install_ansible
       - install_nodejs
       - add_ssh_keys:
@@ -370,7 +371,7 @@ jobs:
           name: Package Backend
           command: |
             sudo apt install tree
-            echo "for testingggggggggggggg"
+            echo "for testingggggggggggggg - config.yml"
             pwd
             ls -a
 
@@ -382,9 +383,13 @@ jobs:
             tar -czf artifact.tar.gz backend
             # tar -C backend -czvf artifact.tar.gz .
             pwd
-            ls 
+            ls -a
             cp artifact.tar.gz .circleci/ansible/roles/deploy/files
             tree
+
+            echo "check exist artifact.tar.gz"
+            cd .circleci/ansible/roles/deploy/files
+            ls -a
 
       - run:
           name: Deploy backend
@@ -393,7 +398,7 @@ jobs:
             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
             export TYPEORM_MIGRATIONS=./migrations/*.ts
 
-            echo "for testingggggggggggggg 2"
+            echo "for testingggggggggggggg - Deploy backend - config"
             pwd
             ls 
             ls -a
