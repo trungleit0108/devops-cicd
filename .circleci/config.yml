@@ -199,10 +199,10 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify:
           branch_pattern: .+
           event: fail
@@ -247,10 +247,10 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   run-migrations:
     docker:
@@ -279,10 +279,10 @@ jobs:
           command: |
             curl --insecure https://kvdb.io/9xUbNih6ZWr1Wces5mPGiD/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify:
           branch_pattern: .+
           event: fail
@@ -320,10 +320,10 @@ jobs:
             npm audit fix --force --audit-level=critical
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       # - slack/notify:
       #     branch_pattern: .+
       #     event: fail
@@ -471,10 +471,10 @@ jobs:
               return 1
             fi
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
@@ -489,7 +489,7 @@ jobs:
           name: Update cloudfront distribution
           command: |
             export OldWorkflowID=$(aws cloudformation list-exports \
-              --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
+              --query "Exports[?Name=='ID'].Value" --no-paginate --output text)
 
             echo "CURRENT_WORKFLOW_ID=${OldWorkflowID}"
             echo ${OldWorkflowID} >> ~/OldWorkflowID.txt
@@ -504,10 +504,10 @@ jobs:
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CURRENT_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   # cleanup:
   #   docker:
@@ -546,7 +546,7 @@ jobs:
           name: Get old stack workflow id
           command: |
             export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              list-exports --query "Exports[?Name==\`ID\`].Value" \
               --no-paginate --output text)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
