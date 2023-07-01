@@ -337,10 +337,10 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-      # - destroy-environment:
-      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       # - slack/notify:
       #     branch_pattern: .+
       #     event: fail
@@ -349,13 +349,9 @@ jobs:
 
   deploy-backend:
     docker:
-      # - image: cimg/base:stable
       - image: python:3.11-rc-alpine
     steps:
       - checkout
-      # - install_awscli
-      - install_ansible
-      - install_nodejs
       - add_ssh_keys:
           fingerprints: ["25:42:3e:26:7b:bf:c0:a3:34:bb:01:98:f6:b4:42:c1"]
       - attach_workspace:
@@ -365,46 +361,54 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd backend
-            npm install
+            apk add tar gzip nodejs npm
+            apk add --update ansible tar npm curl
+            apk add --no-cache curl
+            apk add --no-cache openssh-client
+            apk add --no-cache --upgrade bash
+            pip install awscli
       - run:
-          name: Package Backend
+          name: Create env file
           command: |
-            sudo apt install tree
-            echo "for testingggggggggggggg - config.yml"
-            pwd
-            ls -a
-
             cd backend
-            npm i
-            npm install oauth2
-            npm run build
-            cd ../
-            tar -czf artifact.tar.gz backend
-            # tar -C backend -czvf artifact.tar.gz .
-            pwd
-            ls -a
-            cp artifact.tar.gz .circleci/ansible/roles/deploy/files
-            tree
+            touch .env
+            echo "TYPEORM_CONNECTION=postgres" >> .env
+            echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+            echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> .env
+            echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+            # Use these values for the local PG database from the Docker Compose file
+            echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
+            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+            cat .env
 
-            echo "check exist artifact.tar.gz"
-            cd .circleci/ansible/roles/deploy/files
-            ls -a
+      # - run:
+      #     name: build zip file
+      #     command: |
+      #       cd /root/project/
+      #       tar -zcvf api.tar.gz backend/
+      #       mv api.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
 
       - run:
           name: Deploy backend
           command: |
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            ls -a ./backend
+            cp -r ./backend .circleci/ansible/roles/deploy/files
 
-            echo "for testingggggggggggggg - Deploy backend - config"
+            cd backend
+            npm i
+            npm run build
+            cd ..
             pwd
-            ls 
-            ls -a
-            cd .circleci/ansible
-            cat inventory.txt
+            ls
+            tar -C backend -czvf artifact.tar.gz .
 
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=false
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       # - destroy-environment:
@@ -414,26 +418,59 @@ jobs:
 
   smoke-test:
     docker:
-      - image: cimg/base:stable
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - install_awscli
-      - install_nodejs
       - run:
-          name: Backend smoke testT.
+          name: Install dependencies
           command: |
-            BACKEND_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
+            apk add --update curl 
+            apk add --update nodejs 
+            apk add --update npm
+            apk add --update ansible
+            ansible --version
+            apk add --update tar
+            pip3 install awscli
 
-            echo "STARTING MOCKTESTTTTTTTTTTTTT"
-            ls -a
-            echo "ENDING MOCKTESTTTTTTTTTTTTT"
-
-            export API_URL=http://${BACKEND_IP}:3030
+            echo "STARTING Install dependencies"
+            pwd
+            ls -la
+            echo "ENDING Install dependencies"
+      - run:
+          name: Create env file
+          command: |
+            cd backend
+            touch .env
+            echo "TYPEORM_CONNECTION=postgres" >> .env
+            echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+            echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> .env
+            echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+            # Use these values for the local PG database from the Docker Compose file
+            echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
+            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+            cat .env
+            echo "STARTING Create env file"
+            pwd
+            ls -la
+            echo "ENDING Create env file"
+      - run:
+          name: Backend smoke test.
+          command: |
+            echo "Backend smoke test."
+            pwd
+            ls -la
+            echo "Backend smoke test."
+            
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            if curl -s --fail $API_URL/api/status | grep "ok"
+            if curl "${API_URL}/api/status" | grep "ok"
             then
               exit 0
             else
@@ -442,18 +479,20 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
-            if curl -s $FRONTEND_WEBSITE | grep "Welcome"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
             then
-              exit 1
+                # Change this to 0 after the job fails
+              return 1
             else
-              exit 1
+              return 1
             fi
       # Here's where you will add some code to rollback on failure
-      # - destroy-environment:
-      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
