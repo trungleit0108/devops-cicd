@@ -488,13 +488,6 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            # export OldWorkflowID=$(aws cloudformation list-exports \
-            #   --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
-
-            # echo "CURRENT_WORKFLOW_ID=${OldWorkflowID}"
-            # echo ${OldWorkflowID} >> ~/OldWorkflowID.txt
-            # cat ~/OldWorkflowID.txt
-
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
             --stack-name InitialStack \
@@ -540,7 +533,7 @@ jobs:
 
   cleanup:
     docker:
-    -  image: amazon/aws-cli
+      - image: amazon/aws-cli
     # resource_class: medium
     steps:
       - checkout
@@ -567,48 +560,48 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
-  
+
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     context: slack-secrets
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     context: slack-secrets
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     context: slack-secrets
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     context: slack-secrets
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     context: slack-secrets
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure:
-      #     context: slack-secrets
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     context: slack-secrets
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     context: slack-secrets
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     context: slack-secrets
-      #     requires: [run-migrations]
-      # - smoke-test:
-      #     context: slack-secrets
-      #     requires: [deploy-backend, deploy-frontend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - test-backend:
+          context: slack-secrets
+          requires: [build-backend]
+      - scan-backend:
+          context: slack-secrets
+          requires: [build-backend]
+      - scan-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          context: slack-secrets
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          context: slack-secrets
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          context: slack-secrets
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          context: slack-secrets
+          requires: [run-migrations]
+      - deploy-backend:
+          context: slack-secrets
+          requires: [run-migrations]
+      - smoke-test:
+          context: slack-secrets
+          requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           context: slack-secrets
-          # requires: [smoke-test]
+          requires: [smoke-test]
       - cleanup:
           context: slack-secrets
           requires: [cloudfront-update]
