@@ -18,6 +18,7 @@
     sudo apt update
     sudo apt-get install -y npm
     cd /home/ubuntu/app
+    npm install
     echo "for testingggggggggggggg - deploy"
     pwd
     ls -a

@@ -67,7 +67,7 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             # SUCCESS = 1
-            SUCCESS=$(curl --insecure  https://kvdb.io/F8zFt9ZYS31Zx48iuiGncS/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/9xUbNih6ZWr1Wces5mPGiD/migration_<< parameters.Workflow_ID >>)
             echo $SUCCESS  
             if(( $SUCCESS==1 )); 
             then
@@ -263,6 +263,18 @@ jobs:
       - run:
           name: Configure server
           command: |
+            export NODE_ENV=production
+            export VERSION=1
+            export TYPEORM_CONNECTION=postgres
+            export TYPEORM_MIGRATIONS_DIR=./src/migrations
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+            export TYPEORM_MIGRATIONS=./src/migrations/*.ts
+            export TYPEORM_HOST=$TYPEORM_HOST
+            export TYPEORM_PORT=$TYPEORM_PORT 
+            export TYPEORM_USERNAME=$TYPEORM_USERNAME
+            export TYPEORM_PASSWORD=$TYPEORM_PASSWORD 
+            export TYPEORM_DATABASE=$TYPEORM_DATABASE
+
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
@@ -293,7 +305,7 @@ jobs:
       - run:
           name: send migration status to kvdb.io
           command: |
-            curl --insecure https://kvdb.io/F8zFt9ZYS31Zx48iuiGncS/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
+            curl --insecure https://kvdb.io/9xUbNih6ZWr1Wces5mPGiD/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
       # Here's where you will add some code to rollback on failure
       # - revert-migrations    ## revert the migration if the last step fail
       - slack/notify:
@@ -330,6 +342,7 @@ jobs:
             cd frontend
             npm install
             npm run build
+            npm audit fix --force --audit-level=critical
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - destroy-environment:
@@ -535,7 +548,7 @@ jobs:
       - run:
           name: Get old stack workflow id and Remove old stacks and files
           command: |
-            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/F8zFt9ZYS31Zx48iuiGncS/OldWorkflowID)
+            OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/9xUbNih6ZWr1Wces5mPGiD/OldWorkflowID)
             echo "OLD_WORKFLOW_ID=$OLD_WORKFLOW_ID"
             NEW_WORKFLOW_ID=${CIRCLE_WORKFLOW_ID:0:7}
             echo "NEW_WORKFLOW_ID=$NEW_WORKFLOW_ID"
