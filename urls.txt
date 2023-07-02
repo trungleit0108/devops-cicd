@@ -1,3 +1,9 @@
 URL01: https://github.com/trungleit0108/devops-cicd
 URL02: arn:aws:s3:::udapeople-5bc109280e5e43f1dff47cc509d93c25
-URL03: d14g1h89rx6v4j.cloudfront.net
+URL_s3: arn:aws:s3:::udapeople-e869268
+URL03: djoitqs6gus3.cloudfront.net
+
+Prometheus
+- http://ec2-52-91-18-55.compute-1.amazonaws.com:9090/graph?g0.range_input=1h&g0.expr=node_memory_MemFree_bytes&g0.tab=0
+- http://ec2-52-91-18-55.compute-1.amazonaws.com:9090/targets
+- http://ec2-52-91-18-55.compute-1.amazonaws.com:9093/#/alerts
