@@ -32,7 +32,8 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             # export SUCCESS=$(curl --insecure  https://kvdb.io/8trtArSkXSX19ks6tFwjiD/migration_<< parameters.Workflow_ID >>)
-            export SUCCESS=1
+            SUCCESS=1
+            export SUCCESS
             echo $SUCCESS  
             if(( $SUCCESS==1 )); 
             then
