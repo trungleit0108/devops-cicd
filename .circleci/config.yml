@@ -35,7 +35,7 @@ commands:
             SUCCESS=1
             export SUCCESS
             echo $SUCCESS  
-            if(( $SUCCESS==1 )); 
+            if(( SUCCESS==1 )); 
             then
               cd backend
               pwd
