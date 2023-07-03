@@ -29,18 +29,22 @@ commands:
       - run:
           name: Revert migrations
           when: on_fail
+          # command: |
+          #   # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+          #   # SUCCESS = 1
+          #   export SUCCESS=$(curl --insecure  https://kvdb.io/8trtArSkXSX19ks6tFwjiD/migration_<< parameters.Workflow_ID >>)
+          #   echo $SUCCESS
+          #   if(( $SUCCESS==1 ));
+          #   then
+          #     cd ~/project/backend
+          #     pwd
+          #     ls -a
+          #     npm run migrations:revert
+          #   fi
           command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            # SUCCESS = 1
-            export SUCCESS=$(curl --insecure  https://kvdb.io/9xUbNih6ZWr1Wces5mPGiD/migration_<< parameters.Workflow_ID >>)
-            echo $SUCCESS  
-            if(( $SUCCESS==1 )); 
-            then
-              cd ~/project/backend
-              pwd
-              ls -a
-              npm run migrations:revert
-            fi
+            cd ~/project/backend
+            npm install
+            npm run migrations:revert
 
 jobs:
   build-frontend:
@@ -277,7 +281,7 @@ jobs:
       - run:
           name: send migration status to kvdb.io
           command: |
-            curl --insecure https://kvdb.io/9xUbNih6ZWr1Wces5mPGiD/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
+            curl --insecure https://kvdb.io/8trtArSkXSX19ks6tFwjiD/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d "1"
       # Here's where you will add some code to rollback on failure
       # - destroy-environment:
       #     Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
