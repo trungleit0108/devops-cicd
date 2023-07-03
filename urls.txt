@@ -1,8 +1,8 @@
 WebsiteURL: http://udapeople-e1bf1b8.s3-website-us-east-1.amazonaws.com
 
 URL01: https://github.com/trungleit0108/devops-cicd
-URL02: https://s3.console.aws.amazon.com/s3/buckets/udapeople-7faf300
-URL03: https://d3aikpxad6y7jx.cloudfront.net/#/employees
+URL02: https://us-east-1.console.aws.amazon.com/s3/home?region=us-east-1&bucket=udapeople-e1bf1b8
+URL03: http://d1agn8qdiozrlt.cloudfront.net/#/employees
 
 Prometheus
 - http://ec2-52-91-18-55.compute-1.amazonaws.com:9090/graph?g0.range_input=1h&g0.expr=node_memory_MemFree_bytes&g0.tab=0
