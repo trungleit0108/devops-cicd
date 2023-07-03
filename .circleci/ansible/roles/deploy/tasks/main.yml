@@ -37,12 +37,6 @@
     pm2 stop backend
     pm2 delete backend
 
-- name: building node services
-  shell: |
-    cd /home/ubuntu/app
-    npm run build
-    npm run prestart:prod
-
 - name: "Start backend"
   become: yes
   shell: |
@@ -52,6 +46,7 @@
     pm2 ls
 
   environment:
+    - NODE_ENV: production
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
     - TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
     - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"

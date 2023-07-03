@@ -573,9 +573,9 @@ workflows:
       - smoke-test:
           context: slack-secrets
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          context: slack-secrets
-          requires: [smoke-test]
+      # - cloudfront-update:
+      #     context: slack-secrets
+      #     requires: [smoke-test]
       # - cleanup:
       #     context: slack-secrets
       #     requires: [cloudfront-update]
