@@ -355,6 +355,7 @@ jobs:
           command: |
             cd backend
             touch .env
+            echo "NODE_ENV=production" >> .env
             echo "TYPEORM_CONNECTION=postgres" >> .env
             echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
             echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> .env
@@ -424,6 +425,7 @@ jobs:
           command: |
             cd backend
             touch .env
+            echo "NODE_ENV=production" >> .env
             echo "TYPEORM_CONNECTION=postgres" >> .env
             echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
             echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> .env
