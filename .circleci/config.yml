@@ -49,6 +49,7 @@ commands:
               pwd
               ls -a
               npm install --force
+              npm install typescript@latest -g
               npm run migrations:revert
             fi
 
