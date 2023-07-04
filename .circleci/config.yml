@@ -49,7 +49,8 @@ commands:
               pwd
               ls -a
               npm install --force
-              npm install typescript@latest -g
+              npm i logform@2.3.0
+              npm install typescript -g
               npm run migrations:revert
             fi
 
