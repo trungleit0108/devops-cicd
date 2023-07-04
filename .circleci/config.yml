@@ -267,7 +267,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0 #todo
+      - image: circleci/node:13.8.0 
       # - image: circleci/node:14.18.1
     steps:
       - checkout
@@ -345,7 +345,8 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.11-rc-alpine
+      # - image: python:3.11-rc-alpine
+      - image: circleci/node:13.8.0 
     steps:
       - checkout
       - add_ssh_keys:
@@ -357,12 +358,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add tar gzip nodejs npm
-            apk add --update ansible tar npm curl
-            apk add --no-cache curl
-            apk add --no-cache openssh-client
-            apk add --no-cache --upgrade bash
-            pip install awscli
+            sudo apt -y update
+            sudo apt install -y tar gzip curl unzip
+            sudo apt install -y software-properties-common
+            sudo apt install -y python3 python3-pip
+            python3 -m pip install --user ansible
       - run:
           name: Create env file
           command: |
