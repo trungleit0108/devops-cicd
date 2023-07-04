@@ -4,6 +4,16 @@ orbs:
   slack: circleci/slack@4.12.5
 
 commands:
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -267,7 +277,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0 
+      - image: circleci/node:13.8.0
       # - image: circleci/node:14.18.1
     steps:
       - checkout
@@ -346,7 +356,7 @@ jobs:
   deploy-backend:
     docker:
       # - image: python:3.11-rc-alpine
-      - image: circleci/node:13.8.0 
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - add_ssh_keys:
@@ -355,6 +365,7 @@ jobs:
           at: ~/
       - restore_cache:
           keys: [backend-build]
+      - install_awscli
       - run:
           name: Install dependencies
           command: |
@@ -363,10 +374,6 @@ jobs:
             sudo apt install -y software-properties-common
             sudo apt install -y python3 python3-pip
             python3 -m pip install --user ansible
-
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
       - run:
           name: Create env file
           command: |
