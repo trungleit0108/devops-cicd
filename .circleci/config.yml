@@ -48,9 +48,9 @@ commands:
               cd backend
               pwd
               ls -a
-              npm install --force
-              npm i logform@2.3.0
-              npm install typescript -g
+              npm install
+              # npm i logform@2.3.0
+              npm install typescript@5.1.3
               npm run migrations:revert
             fi
 
